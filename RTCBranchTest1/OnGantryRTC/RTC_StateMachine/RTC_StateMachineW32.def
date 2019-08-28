@@ -1,0 +1,10 @@
+; RTC_STATEMACHINEW32.def : Declares the module parameters.
+
+LIBRARY      "RTC_StateMachineW32.DLL"
+
+EXPORTS
+	DllCanUnloadNow      PRIVATE
+	DllGetClassObject    PRIVATE
+	DllRegisterServer    PRIVATE
+	DllUnregisterServer	 PRIVATE
+	DllGetTcCtrl		 PRIVATE

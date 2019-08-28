@@ -1,0 +1,105 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4022.10">
+  <POU Name="OnGantry_IO" Id="{5422ddab-74cb-416c-81ac-d1795660be07}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM OnGantry_IO
+VAR
+	//watchdog
+	intBoneCounter	:INT	:=0;
+	tonSwReset :TON;
+	tpSwReset :Tp;
+	
+	//Interface of IO To RTC		
+	plc_to_io_bGantryTouchGuard   AT%I*   : BOOL;
+	plc_to_cpp_bGantryTouchGuard  AT%Q*   : BOOL;
+	
+	plc_to_io_bAutoMove           AT%I*   : BOOL;
+	plc_to_cpp_bAutoMove          AT%Q*   : BOOL;
+	
+	plc_to_io_OnGantryRtcWdOK     AT%I*   : BOOL;
+	plc_to_cpp_OnGantryRtcWdOK    AT%Q*   : BOOL;
+	
+	plc_to_io_bCanOpenOk          AT%Q*   : BOOL;
+	plc_to_cpp_bCanOpenOk         AT%I*   : BOOL;
+		
+	plc_to_io_OnGantryMoveEn      AT%Q*   : BOOL;
+	plc_to_cpp_OnGantryMoveEn     AT%I*   : BOOL;
+		
+	plc_to_io_bSwWatchDogService  AT%Q*   : BOOL;
+	
+	plc_to_io_bSwRest             AT%Q*   : BOOL;
+	plc_to_cpp_bSwRest            AT%I*   : BOOL;
+	
+	plc_to_io_bKvEn               AT%Q*   : BOOL;
+	plc_to_cpp_bKvEn              AT%I*   : BOOL;
+	
+	plc_to_io_bEthercatInOk       AT%Q*   : BOOL;
+	plc_to_cpp_bEthercatInOk      AT%I*   : BOOL;
+	
+	plc_to_io_bEthercatOutOk      AT%Q*   : BOOL;
+	plc_to_cpp_bEthercatOutOk     AT%I*   : BOOL;	
+	
+	plc_to_cpp_bSwManualMotionEn  AT%I*		:BOOL;
+	plc_to_io_bSwManualMotionEn   AT%Q*		:BOOL;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[IF intBoneCounter >= 4 THEN
+	plc_to_io_bSwWatchDogService := NOT plc_to_io_bSwWatchDogService;		//Flip bone to feed the dog
+	intBoneCounter := 0;
+ELSE intBoneCounter := intBoneCounter + 1; 
+END_IF
+
+IF plc_to_io_bSwRest AND (NOT plc_to_cpp_bSwRest) THEN		// turn io signal to false in next cycle if cpp signal is false
+	plc_to_io_bSwRest := FALSE;
+END_IF
+
+tpSwReset(IN:=TwinCAT_SystemInfoVarList._TaskInfo[Tc2_System.GETCURTASKINDEXEX()].FirstCycle,PT:=T#2S,Q=>,ET=>);
+tonSwReset(IN:=tpSwReset.Q,PT:=T#1S,Q=>,ET=>);		//Reset pulse will send after 1sec of PLC first cycle
+
+plc_to_io_bSwRest := plc_to_cpp_bSwRest OR tonSwReset.Q;
+
+io_update();]]></ST>
+    </Implementation>
+    <Action Name="io_update" Id="{9dadd95c-93d6-4d40-a7ba-5efc22ba5c10}">
+      <Implementation>
+        <ST><![CDATA[
+
+////****beta interface of plc and cpp****////
+//inputIO to plc to cpp	
+plc_to_cpp_bGantryTouchGuard := plc_to_io_bGantryTouchGuard;
+plc_to_cpp_bAutoMove := plc_to_io_bAutoMove;        
+plc_to_cpp_OnGantryRtcWdOK  := plc_to_io_OnGantryRtcWdOK ;
+     
+     
+plc_to_io_bCanOpenOk :=	plc_to_cpp_bCanOpenOk;
+plc_to_io_OnGantryMoveEn := plc_to_cpp_OnGantryMoveEn;    	
+plc_to_io_bSwRest := plc_to_cpp_bSwRest;          	         	
+plc_to_io_bKvEn :=  plc_to_cpp_bKvEn;        
+plc_to_io_bEthercatOutOk := plc_to_cpp_bEthercatOutOk;
+plc_to_io_bEthercatInOk := plc_to_cpp_bEthercatInOk; 
+
+plc_to_io_bSwManualMotionEn:=plc_to_cpp_bSwManualMotionEn;]]></ST>
+      </Implementation>
+    </Action>
+    <LineIds Name="OnGantry_IO">
+      <LineId Id="55" Count="14" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="OnGantry_IO.io_update">
+      <LineId Id="30" Count="1" />
+      <LineId Id="29" Count="0" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="27" Count="0" />
+      <LineId Id="3" Count="0" />
+      <LineId Id="7" Count="0" />
+      <LineId Id="10" Count="0" />
+      <LineId Id="13" Count="0" />
+      <LineId Id="15" Count="1" />
+      <LineId Id="23" Count="0" />
+      <LineId Id="26" Count="0" />
+      <LineId Id="34" Count="1" />
+      <LineId Id="37" Count="0" />
+      <LineId Id="36" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4022.10">
+  <POU Name="BeamEnChain" Id="{51346549-1d7f-4261-9944-e59c41e34fe8}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM BeamEnChain
+VAR
+	BeamEn	AT %Q*:BOOL;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[BeamEn := TRUE;]]></ST>
+    </Implementation>
+    <LineIds Name="BeamEnChain">
+      <LineId Id="5" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

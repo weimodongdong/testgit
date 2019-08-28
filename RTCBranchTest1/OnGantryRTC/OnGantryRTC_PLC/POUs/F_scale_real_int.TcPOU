@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4020.12">
+  <POU Name="F_scale_real_int" Id="{f56ab396-0b14-4a37-b75c-efba05b45d52}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION F_scale_real_int : INT
+VAR_INPUT
+	input_real	:REAL;
+END_VAR
+VAR
+	scaled_int	:int;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[//Sacle +/-10V to INT
+input_real:=LIMIT(-10,input_real,10);
+
+IF (input_real>=0) THEN
+	scaled_int := REAL_TO_INT(ABS(input_real)/10*32767);
+ELSE
+	scaled_int := - REAL_TO_INT(ABS(input_real)/10*32767);
+END_IF
+
+F_scale_real_int:=LIMIT(-32767,scaled_int,32767);]]></ST>
+    </Implementation>
+    <LineIds Name="F_scale_real_int">
+      <LineId Id="23" Count="8" />
+      <LineId Id="7" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

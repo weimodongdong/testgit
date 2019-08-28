@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4020.12">
+  <Task Name="PlcTask" Id="{0bd3c330-280f-4182-a2a8-91bce6ad7bf5}">
+    <!--CycleTime in micro seconds.-->
+    <CycleTime>10000</CycleTime>
+    <Priority>20</Priority>
+    <PouCall>
+      <Name>Ehercat_Manage</Name>
+    </PouCall>
+    <PouCall>
+      <Name>bsm</Name>
+    </PouCall>
+    <PouCall>
+      <Name>BeamEnChain</Name>
+    </PouCall>
+    <PouCall>
+      <Name>OnGantry_IO</Name>
+    </PouCall>
+    <TaskFBGuid>{339e2d72-b840-4574-87ec-883317bd9cb9}</TaskFBGuid>
+    <Fb_init>{c598a157-6c6e-4b40-9e6d-7431426c381c}</Fb_init>
+    <Fb_exit>{cb4402ef-5ded-4750-a4f2-3894537ce60a}</Fb_exit>
+    <CycleUpdate>{01da027c-5d33-408f-bde6-b8e6594a59f3}</CycleUpdate>
+    <PostCycleUpdate>{e1ae538c-9838-4897-86b7-ad5101fe1010}</PostCycleUpdate>
+  </Task>
+</TcPlcObject>

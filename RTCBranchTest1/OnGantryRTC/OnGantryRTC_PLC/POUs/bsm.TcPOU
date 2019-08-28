@@ -1,0 +1,101 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4020.12">
+  <POU Name="bsm" Id="{59007a6e-2db4-4d0a-b176-bbb97be12cdb}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM bsm
+VAR
+//	bsm_bControlModeHMI	:BOOL	:=FALSE;	//true = use HMI control, false = use etherCAT control
+
+	bsm_intAICollP1 AT %I*	:INT;	//EL3004 #1 CH1, +/-10V -> -32767 to 32768
+	bsm_fCollP1	AT %Q*:REAL;
+	bsm_intAICollP2 AT %I*	:INT;	//EL3004 #1 CH2, +/-10V -> -32767 to 32768
+	bsm_fCollP2	AT %Q*:REAL;
+	bsm_intAIJaw1P1 AT %I*	:INT;	//EL3004 #1 CH3, +/-10V -> -32767 to 32768
+	bsm_fJaw1P1	AT %Q*:REAL;
+	bsm_intAIJaw1P2 AT %I*	:INT;	//EL3004 #1 CH4, +/-10V -> -32767 to 32768
+	bsm_fJaw1P2	AT %Q*:REAL;
+
+	bsm_intAIJaw2P1 AT %I*	:INT;	//EL3004 #2 CH1, +/-10V -> -32767 to 32768
+	bsm_fJaw2P1	AT %Q*:REAL;
+	bsm_intAIJaw2P2 AT %I*	:INT;	//EL3004 #2 CH2, +/-10V -> -32767 to 32768
+	bsm_fJaw2P2	AT %Q*:REAL;
+	bsm_intAIJaw3P1 AT %I*	:INT;	//EL3004 #2 CH3, +/-10V -> -32767 to 32768
+	bsm_fJaw3P1	AT %Q*:REAL;
+	bsm_intAIJaw3P2 AT %I*	:INT;	//EL3004 #2 CH4, +/-10V -> -32767 to 32768
+	bsm_fJaw3P2	AT %Q*:REAL;
+	
+	bsm_intAIJaw4P1 AT %I*	:INT;	//EL3004 #3 CH1, +/-10V -> -32767 to 32768
+	bsm_fJaw4P1	AT %Q*:REAL;
+	bsm_intAIJaw4P2 AT %I*	:INT;	//EL3004 #3 CH2, +/-10V -> -32767 to 32768
+	bsm_fJaw4P2	AT %Q*:REAL;
+	
+	bsm_intAOCollSet AT %Q*	:INT;	//EL4034 #1 CH1, -32767 to 32768 -> +/-10V
+//	bsm_fCollSet	:REAL;
+	bsm_ethercat_fCollSet	AT %I*:REAL;
+	bsm_intAOLwJ4Set AT %Q*	:INT;	//EL4034 #1 CH2, -32767 to 32768 -> +/-10V
+//	bsm_fLowJaw4Set	:REAL;
+	bsm_ethercat_fLowJaw4Set	AT %I*:REAL;
+	bsm_intAOLwJ3Set AT %Q*	:INT;	//EL4034 #1 CH3, -32767 to 32768 -> +/-10V
+//	bsm_fLowJaw3Set	:REAL;
+	bsm_ethercat_fLowJaw3Set	AT %I*:REAL;
+	
+	bsm_intAOUpJ2Set AT %Q*	:INT;	//EL4034 #2 CH1, -32767 to 32768 -> +/-10V
+//	bsm_fUpJaw2Set	:REAL;
+	bsm_ethercat_fUpJaw2Set	AT %I*:REAL;
+	bsm_intAOUpJ1Set AT %Q*	:INT;	//EL4034 #2 CH2, -32767 to 32768 -> +/-10V
+//	bsm_fUpJaw1Set	:REAL;
+	bsm_ethercat_fUpJaw1Set	AT %I*:REAL;
+	
+	bsm_bFieldLight AT %Q*	:BOOL	:=FALSE;	//EL2008 CH1
+	bsm_bRangeFinder AT %Q*	:BOOL	:=FALSE;	//EL2008 CH2
+	bsm_bJawBreaker AT %Q*	:BOOL	:=FALSE;	//EL2008 CH3
+	bsm_bBSMOK AT %Q*	:BOOL	:=FALSE;	//EL2008 CH4
+	bsm_ethercat_bFieldLight AT %I*	:BOOL;
+	bsm_ethercat_bRangeFinder AT %I*	:BOOL;
+	bsm_ethercat_bJawBreaker AT %I*	:BOOL;
+	bsm_ethercat_bBSMOK AT %I*	:BOOL;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[//Convert AI int to +/- 10V
+
+bsm_fCollP1:=F_scale_int_real(bsm_intAICollP1);
+bsm_fCollP2:=F_scale_int_real(bsm_intAICollP2);
+
+bsm_fJaw1P1:=F_scale_int_real(bsm_intAIJaw1P1);
+bsm_fJaw1P2:=F_scale_int_real(bsm_intAIJaw1P2);
+
+bsm_fJaw2P1:=F_scale_int_real(bsm_intAIJaw2P1);
+bsm_fJaw2P2:=F_scale_int_real(bsm_intAIJaw2P2);
+
+bsm_fJaw3P1:=F_scale_int_real(bsm_intAIJaw3P1);
+bsm_fJaw3P2:=F_scale_int_real(bsm_intAIJaw3P2);
+
+bsm_fJaw4P1:=F_scale_int_real(bsm_intAIJaw4P1);
+bsm_fJaw4P2:=F_scale_int_real(bsm_intAIJaw4P2);
+
+//IF NOT bsm_bControlModeHMI THEN
+//	bsm_fCollSet := bsm_ethercat_fCollSet;
+//	bsm_fLowJaw4Set := bsm_ethercat_fLowJaw4Set;
+//	bsm_fLowJaw3Set := bsm_ethercat_fLowJaw3Set;
+//	bsm_fUpJaw2Set := bsm_ethercat_fUpJaw2Set;
+//	bsm_fUpJaw1Set := bsm_ethercat_fUpJaw1Set;
+	bsm_bFieldLight := bsm_ethercat_bFieldLight;
+	bsm_bRangeFinder := bsm_ethercat_bRangeFinder;
+	bsm_bJawBreaker := bsm_ethercat_bJawBreaker;
+	bsm_bBSMOK := bsm_ethercat_bBSMOK;
+//END_IF
+
+bsm_intAOCollSet :=F_scale_real_int(bsm_ethercat_fCollSet);
+bsm_intAOLwJ4Set :=F_scale_real_int(bsm_ethercat_fLowJaw4Set);
+bsm_intAOLwJ3Set :=F_scale_real_int(bsm_ethercat_fLowJaw3Set);
+bsm_intAOUpJ2Set :=F_scale_real_int(bsm_ethercat_fUpJaw2Set);
+bsm_intAOUpJ1Set :=F_scale_real_int(bsm_ethercat_fUpJaw1Set);
+
+]]></ST>
+    </Implementation>
+    <LineIds Name="bsm">
+      <LineId Id="221" Count="34" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

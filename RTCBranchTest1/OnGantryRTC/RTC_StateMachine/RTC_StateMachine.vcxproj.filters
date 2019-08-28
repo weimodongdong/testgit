@@ -1,0 +1,213 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{495c7e76-49a2-4a3a-b485-f502e8390625}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{a7c3dcb5-7785-42ad-9331-c4e2c9056eb8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TwinCAT UM Files">
+      <UniqueIdentifier>{f81c343c-2c21-40f6-9398-bd3f01b1610d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TwinCAT RT Files">
+      <UniqueIdentifier>{37b9f1b1-6c60-4242-ab95-bb7b3652032b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TMC Files">
+      <UniqueIdentifier>{a59bc9c8-0032-4b42-8cb0-61072975d4de}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\UserObjects">
+      <UniqueIdentifier>{b8d54169-76bc-452f-b5db-2d052d8faad0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\UserResources">
+      <UniqueIdentifier>{10c9ee1a-cef2-49f4-bdc6-c3a52bcdc010}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\UserObjects">
+      <UniqueIdentifier>{7b0a8326-6115-4b94-900b-a15d4bb75c24}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\UserResources">
+      <UniqueIdentifier>{540cf3f9-ed96-4509-b11c-dc4b9a6b0d5c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\UserObjects\Tools">
+      <UniqueIdentifier>{588f8deb-9fb9-45e9-9d0c-83a7be0d9ca5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\UserObjects\Plan">
+      <UniqueIdentifier>{8dbd781c-1c62-45a6-a048-fb37f64c5ebb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\UserObjects\Tools">
+      <UniqueIdentifier>{8c21e028-7e65-4eb9-aeda-fc3d94a98ee5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\UserObjects\Plan">
+      <UniqueIdentifier>{494ff5c0-eb94-4543-bb77-c19041bb781b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\UserObjects\ControlObjects">
+      <UniqueIdentifier>{60073144-5b5f-457c-af8d-90bf6ca32809}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\UserObjects\ControlObjects">
+      <UniqueIdentifier>{5a007e62-1fd1-4858-8938-3ec89317dc4d}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TcPch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RTC_StateMachineClassFactory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RTC_StateMachineInterfaces.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RTC_StateMachineServices.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RTC_StateMachineCtrl.h">
+      <Filter>TwinCAT UM Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RTC_StateMachineDriver.h">
+      <Filter>TwinCAT RT Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RTC_StateMachine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ResourceMngr.h">
+      <Filter>Header Files\UserResources</Filter>
+    </ClInclude>
+    <ClInclude Include="ResourceBgm.h">
+      <Filter>Header Files\UserResources</Filter>
+    </ClInclude>
+    <ClInclude Include="ResourceIgs.h">
+      <Filter>Header Files\UserResources</Filter>
+    </ClInclude>
+    <ClInclude Include="SoftTimer.h">
+      <Filter>Header Files\UserObjects\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="PlanMngr.h">
+      <Filter>Header Files\UserObjects\Plan</Filter>
+    </ClInclude>
+    <ClInclude Include="Crc32.h">
+      <Filter>Header Files\UserObjects\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="ResourceFsm.h">
+      <Filter>Header Files\UserResources</Filter>
+    </ClInclude>
+    <ClInclude Include="ResourcePlan.h">
+      <Filter>Header Files\UserResources</Filter>
+    </ClInclude>
+    <ClInclude Include="PlanIgs.h">
+      <Filter>Header Files\UserObjects\Plan</Filter>
+    </ClInclude>
+    <ClInclude Include="PlanLinac.h">
+      <Filter>Header Files\UserObjects\Plan</Filter>
+    </ClInclude>
+    <ClInclude Include="Bgm.h">
+      <Filter>Header Files\UserObjects\ControlObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="Igs.h">
+      <Filter>Header Files\UserObjects\ControlObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="Bsm.h">
+      <Filter>Header Files\UserObjects\ControlObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="ResourceBsm.h">
+      <Filter>Header Files\UserResources</Filter>
+    </ClInclude>
+    <ClInclude Include="Fsm.h">
+      <Filter>Header Files\UserObjects\ControlObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="FsmKv.h">
+      <Filter>Header Files\UserObjects\ControlObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="RTC_Def.h">
+      <Filter>Header Files\UserObjects\ControlObjects</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="TcPch.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RTC_StateMachineClassFactory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RTC_StateMachineCtrl.cpp">
+      <Filter>TwinCAT UM Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RTC_StateMachineW32.cpp">
+      <Filter>TwinCAT UM Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RTC_StateMachineDriver.cpp">
+      <Filter>TwinCAT RT Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RTC_StateMachine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ResourceMngr.cpp">
+      <Filter>Source Files\UserResources</Filter>
+    </ClCompile>
+    <ClCompile Include="ResourceBgm.cpp">
+      <Filter>Source Files\UserResources</Filter>
+    </ClCompile>
+    <ClCompile Include="ResourceIgs.cpp">
+      <Filter>Source Files\UserResources</Filter>
+    </ClCompile>
+    <ClCompile Include="SoftTimer.cpp">
+      <Filter>Source Files\UserObjects\Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="Crc32.cpp">
+      <Filter>Source Files\UserObjects\Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="ResourceFsm.cpp">
+      <Filter>Source Files\UserResources</Filter>
+    </ClCompile>
+    <ClCompile Include="ResourcePlan.cpp">
+      <Filter>Source Files\UserResources</Filter>
+    </ClCompile>
+    <ClCompile Include="PlanIgs.cpp">
+      <Filter>Source Files\UserObjects\Plan</Filter>
+    </ClCompile>
+    <ClCompile Include="PlanMngr.cpp">
+      <Filter>Source Files\UserObjects\Plan</Filter>
+    </ClCompile>
+    <ClCompile Include="PlanLinac.cpp">
+      <Filter>Source Files\UserObjects\Plan</Filter>
+    </ClCompile>
+    <ClCompile Include="Bgm.cpp">
+      <Filter>Source Files\UserObjects\ControlObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="Igs.cpp">
+      <Filter>Source Files\UserObjects\ControlObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="Bsm.cpp">
+      <Filter>Source Files\UserObjects\ControlObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="ResourceBsm.cpp">
+      <Filter>Source Files\UserResources</Filter>
+    </ClCompile>
+    <ClCompile Include="Fsm.cpp">
+      <Filter>Source Files\UserObjects\ControlObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="FsmKv.cpp">
+      <Filter>Source Files\UserObjects\ControlObjects</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="RTC_StateMachine.rc">
+      <Filter>Source Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="RTC_StateMachineW32.def">
+      <Filter>TwinCAT UM Files</Filter>
+    </None>
+    <None Include="RTC_StateMachine.tmc">
+      <Filter>TMC Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Midl Include="RTC_StateMachineW32.idl">
+      <Filter>TwinCAT UM Files</Filter>
+    </Midl>
+  </ItemGroup>
+</Project>

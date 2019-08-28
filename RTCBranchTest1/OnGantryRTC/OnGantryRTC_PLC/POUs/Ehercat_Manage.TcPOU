@@ -1,0 +1,260 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4020.12">
+  <POU Name="Ehercat_Manage" Id="{8a9abe60-d286-4b8a-b74f-89ef4c887720}" SpecialFunc="None">
+    <Declaration><![CDATA[ PROGRAM Ehercat_Manage
+VAR
+	(**************************PLC to C++**************************)
+	iSlavesCount         AT%Q*          : UINT;	                               //count of slave in device
+	wAllState            AT%Q*          : BYTE;                                //bit0:master、bit1:slave1、bit2:slave2...(bit:0=not op 1=op )
+	bResetBusy           AT%Q*          : BOOL;                                //0:free ; 1:busy 
+	(**************************C++ to PLC**************************)
+  	bResetState          AT%I*          : BOOL;                                //activated by a rising edge
+	(**************************AMSNETID to T_AmsNetID**************************)
+	arrbyNetId           AT%I*          : AMSNETID;                                                                          	
+	(**************************Ehercat Manage variables**************************)
+	MasterNetId			 		        : T_AmsNetID;//:='192.168.50.18.5.1';//Master Devices NetID 
+	tSync                               : TIME   :=T#3S;                       //interval of Ehercat Managment time
+	iMoveStep                           : UINT   :=0; 
+	TON_Sync                            : TON ;
+	i                                   : USINT  :=0;
+    TRIG_Reset                          : R_TRIG;
+	iResetCounter                       : SINT  :=-27;                          //1.set state counter  2.startup OP maxtime = 3-(27)*tSync =90s
+	(**************************Funtion: Get Master variables**************************)
+	fbGetMasterState                    : FB_EcGetMasterState;	
+	wCurrentMasterState                 : WORD;                                //master state
+	(**************************Funtion: Get Slave Address**************************)
+	fbGetAllSlaveAddr                   : FB_EcGetAllSlaveAddr;
+    arrBoxAddr                          : ARRAY[0..6] OF UINT;	              //slave address
+	(**************************Funtion: Get Slave variables**************************)
+	fbGetAllSlaveStates                 : FB_EcGetAllSlaveStates; 
+	arrCurrentSlaveState                : ARRAY[0..6] OF ST_EcSlaveState;     //all slaves state	
+	(**************************Funtion: Contrl Master State **************************)
+	fbSetMasterState                    : FB_EcSetMasterState;
+	(**************************Funtion: Contrl Slave State **************************)
+	fbSetSlaveState                     : FB_EcSetSlaveState;
+	
+
+
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[
+
+
+TRIG_Reset(CLK:=bResetState);
+IF TRIG_Reset.Q  THEN
+   iResetCounter :=0;	
+END_IF
+
+bResetBusy := iResetCounter <=2;
+ 
+CASE iMoveStep OF 
+	(*************interval sync of Ehercat Manage***************)
+	0:		
+	    TON_Sync(IN:=TRUE , PT:=tSync);
+		IF TON_Sync.Q   THEN
+		   TON_Sync(IN:=FALSE);
+		   MasterNetId:=GetMasterNetId(arrAMSNETID:=arrbyNetId);//convert AMSNETID(linked) to T_AmsNetID(fbInput)
+		   iMoveStep:=100;
+		END_IF
+		
+	(*************get master state***************)	
+	100:
+	    fbGetMasterState(sNetId:=MasterNetId, bExecute:=TRUE);		
+		iMoveStep:=150;
+	150:
+	    fbGetMasterState(bExecute:=FALSE);
+		IF NOT fbGetMasterState.bBusy  THEN
+			   wCurrentMasterState := fbGetMasterState.state;
+			   iMoveStep    :=200;
+		END_IF
+	
+    (*************get slaves boxID***************)				
+	200:
+	    fbGetAllSlaveAddr(sNetId:=MasterNetId, pAddrBuf := ADR(arrBoxAddr), cbBufLen:= SIZEOF(arrBoxAddr),bExecute:=TRUE);
+		iMoveStep:=250;
+	250:
+	    fbGetAllSlaveAddr(bExecute:=FALSE);
+		IF NOT fbGetAllSlaveAddr.bBusy  THEN
+			   iMoveStep    :=300;
+		END_IF
+	
+    (*************use boxID to get slaves state and buslink***************)		
+	300:
+	    fbGetAllSlaveStates(sNetId:=MasterNetId, pStateBuf := ADR(arrCurrentSlaveState), cbBufLen:=SIZEOF(arrCurrentSlaveState), bExecute:=TRUE);
+		iMoveStep:=350;
+	350:
+	    fbGetAllSlaveStates(bExecute:=FALSE);	
+	    IF NOT fbGetAllSlaveStates.bBusy  THEN
+			   iSlavesCount :=fbGetAllSlaveStates.nSlaves;
+			   iMoveStep    :=400;
+		END_IF
+		
+    (*************all State to RTC***************)	
+    400:
+		wAllState.0 := wCurrentMasterState=EC_DEVICE_STATE_OP;
+		wAllState.1 := arrCurrentSlaveState[0].deviceState=EC_DEVICE_STATE_OP;
+		wAllState.2 := arrCurrentSlaveState[1].deviceState=EC_DEVICE_STATE_OP;
+		wAllState.3 := arrCurrentSlaveState[2].deviceState=EC_DEVICE_STATE_OP;
+		wAllState.4 := arrCurrentSlaveState[3].deviceState=EC_DEVICE_STATE_OP;
+		wAllState.5 := arrCurrentSlaveState[4].deviceState=EC_DEVICE_STATE_OP;
+		wAllState.6 := arrCurrentSlaveState[5].deviceState=EC_DEVICE_STATE_OP;
+		wAllState.7 := arrCurrentSlaveState[6].deviceState=EC_DEVICE_STATE_OP;
+		iMoveStep   := 450;
+		
+    (*************condition of reset master and slave to OP***************)	
+	450://set all bus node to OP 3 times 
+	    IF iResetCounter <=2   THEN
+		   iResetCounter :=iResetCounter+1;
+		   iMoveStep     :=500;
+		ELSE  
+           iMoveStep     :=0;		  
+		END_IF
+		
+    (*************set master state in OP***************)			
+	500:
+        IF wCurrentMasterState <> EC_DEVICE_STATE_OP   THEN 	
+	       fbSetMasterState(sNetId:=MasterNetId, bExecute:=TRUE, reqState:=EC_DEVICE_STATE_OP);
+		END_IF    
+		iMoveStep:=550;
+	550:
+	    fbSetMasterState(bExecute:=FALSE);
+		IF NOT fbSetMasterState.bBusy  THEN
+			   iMoveStep:=600;
+		END_IF
+	
+	(*************set all slave state follow master state***************)
+	600:
+	    IF arrBoxAddr[i]>0 AND arrCurrentSlaveState[i].deviceState <> wCurrentMasterState THEN
+	       fbSetSlaveState(sNetId:=MasterNetId , nSlaveAddr:=arrBoxAddr[i], bExecute:=TRUE , reqState:=wCurrentMasterState);
+		END_IF
+		iMoveStep:=650;	
+	650://trigger 7 times of iMoveStep=600 to check all slaves in arry
+	    fbSetSlaveState(bExecute:=FALSE);
+		IF NOT fbSetSlaveState.bBusy  THEN			
+			IF     i < 6    THEN
+				   i          :=i+1;
+				   iMoveStep  :=600;
+			ELSE 
+  		           i          :=0;
+			       iMoveStep  :=0;
+			END_IF				 
+		END_IF	
+
+END_CASE;	   
+
+
+
+]]></ST>
+    </Implementation>
+    <Method Name="GetMasterNetId" Id="{c170d5a3-75ab-4820-afcd-9f1c1cb571b5}">
+      <Declaration><![CDATA[METHOD GetMasterNetId : T_AmsNetID   //convert AMSNETID to T_AMSNETID
+VAR_INPUT
+	arrAMSNETID     : AMSNETID; 
+END_VAR
+VAR
+	str23Temp       : STRING;
+	strSymbol       : STRING:='.';
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+str23Temp     := CONCAT(STR1:=BYTE_TO_STRING(arrbyNetId[0]) , STR2:=strSymbol);
+str23Temp     := CONCAT(STR1:=str23Temp , STR2:=BYTE_TO_STRING(arrbyNetId[1]));
+str23Temp     := CONCAT(STR1:=str23Temp , STR2:=strSymbol);
+str23Temp     := CONCAT(STR1:=str23Temp , STR2:=BYTE_TO_STRING(arrbyNetId[2]));
+str23Temp     := CONCAT(STR1:=str23Temp , STR2:=strSymbol);
+str23Temp     := CONCAT(STR1:=str23Temp , STR2:=BYTE_TO_STRING(arrbyNetId[3]));
+str23Temp     := CONCAT(STR1:=str23Temp , STR2:=strSymbol);
+str23Temp     := CONCAT(STR1:=str23Temp , STR2:=BYTE_TO_STRING(arrbyNetId[4]));
+str23Temp     := CONCAT(STR1:=str23Temp , STR2:=strSymbol);
+str23Temp     := CONCAT(STR1:=str23Temp , STR2:=BYTE_TO_STRING(arrbyNetId[5]));
+str23Temp  	  := CONCAT(STR1:=str23Temp , STR2:=strSymbol);
+GetMasterNetId:= str23Temp;]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="Ehercat_Manage">
+      <LineId Id="873" Count="0" />
+      <LineId Id="895" Count="0" />
+      <LineId Id="876" Count="0" />
+      <LineId Id="574" Count="0" />
+      <LineId Id="583" Count="0" />
+      <LineId Id="576" Count="0" />
+      <LineId Id="357" Count="0" />
+      <LineId Id="898" Count="0" />
+      <LineId Id="624" Count="0" />
+      <LineId Id="293" Count="0" />
+      <LineId Id="504" Count="0" />
+      <LineId Id="460" Count="1" />
+      <LineId Id="464" Count="0" />
+      <LineId Id="467" Count="0" />
+      <LineId Id="465" Count="0" />
+      <LineId Id="937" Count="0" />
+      <LineId Id="466" Count="0" />
+      <LineId Id="503" Count="0" />
+      <LineId Id="486" Count="0" />
+      <LineId Id="205" Count="0" />
+      <LineId Id="207" Count="0" />
+      <LineId Id="231" Count="3" />
+      <LineId Id="244" Count="0" />
+      <LineId Id="235" Count="1" />
+      <LineId Id="290" Count="0" />
+      <LineId Id="505" Count="0" />
+      <LineId Id="230" Count="0" />
+      <LineId Id="237" Count="1" />
+      <LineId Id="241" Count="1" />
+      <LineId Id="251" Count="0" />
+      <LineId Id="253" Count="1" />
+      <LineId Id="459" Count="0" />
+      <LineId Id="506" Count="0" />
+      <LineId Id="448" Count="0" />
+      <LineId Id="450" Count="5" />
+      <LineId Id="457" Count="1" />
+      <LineId Id="738" Count="0" />
+      <LineId Id="665" Count="1" />
+      <LineId Id="669" Count="0" />
+      <LineId Id="852" Count="1" />
+      <LineId Id="855" Count="5" />
+      <LineId Id="854" Count="0" />
+      <LineId Id="585" Count="0" />
+      <LineId Id="553" Count="1" />
+      <LineId Id="586" Count="0" />
+      <LineId Id="555" Count="0" />
+      <LineId Id="557" Count="0" />
+      <LineId Id="559" Count="0" />
+      <LineId Id="622" Count="0" />
+      <LineId Id="563" Count="0" />
+      <LineId Id="507" Count="0" />
+      <LineId Id="294" Count="0" />
+      <LineId Id="405" Count="0" />
+      <LineId Id="349" Count="0" />
+      <LineId Id="354" Count="0" />
+      <LineId Id="340" Count="0" />
+      <LineId Id="255" Count="0" />
+      <LineId Id="302" Count="4" />
+      <LineId Id="508" Count="0" />
+      <LineId Id="307" Count="0" />
+      <LineId Id="328" Count="0" />
+      <LineId Id="309" Count="0" />
+      <LineId Id="329" Count="1" />
+      <LineId Id="311" Count="0" />
+      <LineId Id="316" Count="1" />
+      <LineId Id="321" Count="0" />
+      <LineId Id="325" Count="0" />
+      <LineId Id="488" Count="0" />
+      <LineId Id="322" Count="0" />
+      <LineId Id="489" Count="1" />
+      <LineId Id="327" Count="0" />
+      <LineId Id="319" Count="0" />
+      <LineId Id="331" Count="0" />
+      <LineId Id="308" Count="0" />
+      <LineId Id="282" Count="0" />
+      <LineId Id="213" Count="2" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="Ehercat_Manage.GetMasterNetId">
+      <LineId Id="11" Count="11" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>
